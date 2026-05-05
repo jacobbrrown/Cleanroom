@@ -833,40 +833,37 @@ window.addEventListener('DOMContentLoaded',()=>{
 ════════════════════════════════════════════════════════════════════════ */
 function exportJSON(){
   try{
-    const payload = {
-      exported: new Date().toISOString(),
-      runs:    RUNS,
-      rates:   RATES,
-      notices: NOTICES,
-      recipes: RECIPES
-    };
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], {type:'application/json'});
-    const filename = 'cleanroom_data_' + new Date().toISOString().slice(0,10) + '.json';
-
-    // iOS Safari: use Web Share API (no download attribute support)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if(isIOS && navigator.share){
-      const file = new File([blob], filename, {type:'application/json'});
-      navigator.share({ files:[file], title:'Cleanroom Hub data', text:'Cleanroom data export — merge into HTML with merge_data.py.' })
-        .then(()=>toast('Shared! Save the JSON file to pass to your manager.'))
-        .catch(err=>{ if(err.name!=='AbortError') toast('Share failed: '+err.message, true); });
-    } else {
-      const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), {href:url, download:filename});
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url), 5000);
-      toast('Downloaded! Run merge_data.py to bake this data into the HTML for GitHub.');
+    const payload={exported:new Date().toISOString(),runs:RUNS,rates:RATES,notices:NOTICES,recipes:RECIPES};
+    const json=JSON.stringify(payload,null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const filename='cleanroom_data_'+new Date().toISOString().slice(0,10)+'.json';
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    if(isIOS&&navigator.share){
+      const file=new File([blob],filename,{type:'application/json'});
+      navigator.share({files:[file],title:'Cleanroom Hub data',text:'Cleanroom data export.'})
+        .then(()=>toast('Shared! Save the JSON file.'))
+        .catch(err=>{if(err.name!=='AbortError')toast('Share failed: '+err.message,true);});
+    }else{
+      const url=URL.createObjectURL(blob);
+      const a=Object.assign(document.createElement('a'),{href:url,download:filename});
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      toast('Downloaded! Run merge_data.py to bake this into the HTML.');
     }
-  } catch(e){
-    toast('Export failed: ' + e.message, true);
-    console.error('Export error:', e);
-  }
+  }catch(e){toast('Export failed: '+e.message,true);console.error('Export error:',e);}
 }
 
+let _confirmSection=null;
 function confirmReset(section){
-  if(!confirm('Clear ALL '+section+' data? This cannot be undone.')) return;
+  _confirmSection=section;
+  const label=section==='tracker'?'tracker':'recipes';
+  document.getElementById('confirm-msg').textContent='Clear ALL '+label+' data?';
+  const ov=document.getElementById('confirm-overlay');
+  ov.style.display='flex';
+}
+function confirmOK(){
+  document.getElementById('confirm-overlay').style.display='none';
+  const section=_confirmSection; _confirmSection=null;
   if(section==='tracker'){
     RUNS=clone(SEED_RUNS);RATES=clone(SEED_RATES);NOTICES=clone(SEED_NOTICES);STREAKS={};
     save(KEYS.runs,RUNS);save(KEYS.rates,RATES);save(KEYS.notices,NOTICES);save(KEYS.streaks,STREAKS);
@@ -875,6 +872,10 @@ function confirmReset(section){
     RECIPES=clone(SEED_RECIPES);save(KEYS.recipes,RECIPES);
   }
   updateBanners();toast('All data cleared.');
+}
+function confirmCancel(){
+  document.getElementById('confirm-overlay').style.display='none';
+  _confirmSection=null;
 }
 
 function updateBanners(){
@@ -1293,4 +1294,17 @@ function submitRecipe(){
 </script>
 
 
+
+<!-- ══ CONFIRM DIALOG (replaces window.confirm — blocked on iOS Safari) ══ -->
+<div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:14px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2);text-align:center">
+    <div style="font-size:20px;margin-bottom:10px">&#x26A0;&#xFE0F;</div>
+    <div id="confirm-msg" style="font-size:14px;font-weight:600;color:#1A1A2E;margin-bottom:6px"></div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:20px">This cannot be undone.</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-g" style="min-width:90px" onclick="confirmCancel()">Cancel</button>
+      <button class="btn" style="min-width:90px;background:#C0392B;color:#fff" onclick="confirmOK()">Clear data</button>
+    </div>
+  </div>
+</div>
 </body></html>
