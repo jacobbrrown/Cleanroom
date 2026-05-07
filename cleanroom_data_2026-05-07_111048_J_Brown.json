@@ -1,0 +1,65 @@
+{
+  "exported": "2026-05-07T10:10:48.441Z",
+  "runs": [],
+  "rates": [],
+  "notices": [],
+  "recipes": [
+    {
+      "id": 1778109126839,
+      "name": "Al deposition @ high rate",
+      "tool": "Thermal Evaporator",
+      "type": "deposition",
+      "material": "Al",
+      "desc": "Suitable for depositing high conductivity aluminium thin films. Slow ramp the heating of the crucible (5 mins from 0% to 40%). Look for a rate of 2 A/s (~50%), then close the shutter and increase the voltage by 50%. Allow the crucible to heat briefly (<30 s) and for the rate to increase to >15 A/s before opening the shutter briefly (3 secs). After closing the shutter, immediately reduce the voltage and start a gradual ramp down.",
+      "params": [
+        [
+          "Pressure (mbar)",
+          "4e-6"
+        ],
+        [
+          "Temperature (°C)",
+          "25"
+        ],
+        [
+          "Voltage Source 1 (%)",
+          "75"
+        ],
+        [
+          "Voltage Source 2 (%)",
+          "80"
+        ]
+      ],
+      "rate": 15,
+      "runit": "Å/s",
+      "expYield": 95,
+      "avgYield": 95,
+      "substrate": "GaN, GaAs",
+      "thickness": "50 nm",
+      "tips": "Each voltage source has a different optimal voltages. Deposit Al at a high rate to reduce the oxidation of the aluminium and improve the sheet conductivity of the film. Baking the chamber with a slow voltage ramp, and achieving a low chamber pressure will further minimise moisture. Be careful not to consume the aluminium material before finishing the deposition.",
+      "tags": [
+        "GaAs",
+        "Si",
+        "GaN",
+        "AlN",
+        "ScAlN"
+      ],
+      "status": "draft",
+      "owner": "J Brown",
+      "version": 1,
+      "forks": 0,
+      "uses": 0,
+      "liveRate": null,
+      "liveDrift": null,
+      "created": "2026-05-06",
+      "updated": "2026-05-06",
+      "versions": [
+        {
+          "v": 1,
+          "date": "2026-05-06",
+          "note": "Initial submission"
+        }
+      ],
+      "comments": []
+    }
+  ]
+}
